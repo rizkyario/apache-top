@@ -2,9 +2,10 @@ import scala.util.matching.Regex
 import scala.io.Source
 import scala.collection.mutable.LinkedHashMap
 import scala.util.control.Breaks._
+import scala.collection._
 
 object at_parser {
-	def parseValue(line: String, rules: LinkedHashMap[String, String]): Map[String, String] = 
+	def parseLog(line: String, rules: LinkedHashMap[String, String]): Map[String, String] = 
 	{
 		val re = s"${rules.values.reduce((a, b) => a + " " + b)}".r
 		val values = for {
@@ -14,6 +15,14 @@ object at_parser {
 			rules.keys.toSeq(i) -> e
 		}
 		values.map(c => c._1 -> c._2).toMap
+	}
+
+	def displayLog(logs: mutable.MutableList[Map[String, String]]) =
+	{
+		print("\033[H\033[J")
+		val size = logs.foldLeft(0){(total, log)=>{total + log("bytes").toInt}}
+		val count = logs.length
+		println(s"Total Hits: $count \t Total Bandwidth: $size bytes")
 	}
 	
    	def main(args: Array[String])
@@ -30,8 +39,15 @@ object at_parser {
 			("referer", "\"(.*?)\""),
 			("agent", "\"(.*?)\""),
 		)
-		for (line <- Source.fromFile(filename).getLines) {
-			println(parseValue(line, combineRules))
+		while (true)
+		{
+			val logs = mutable.MutableList[Map[String, String]]()
+			for (line <- Source.fromFile(filename).getLines) {
+				val log = parseLog(line, combineRules)
+				logs += log
+			}
+			displayLog(logs)
+			Thread.sleep(1000)
 		}
    }
 }
