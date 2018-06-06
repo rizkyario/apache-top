@@ -22,9 +22,11 @@ object at_parser {
 	def parseValue(line: String, rules: Map[String, String], re: Regex): Map[String, String] = 
 	{
 		var keys = Seq[String]()
-		for (key <- rules.keys) keys = keys:+ key
 		var values = Map[String, String]()
 		var i = 0
+
+		for (key <- rules.keys) keys = keys:+ key
+
 		for (m <- re.findAllIn(line).matchData; e <- m.subgroups) 
 		{
 			values += ((keys(i) -> e))
@@ -47,8 +49,8 @@ object at_parser {
 			("referer", "\"(.*?)\""),
 			("agent", "\"(.*?)\""),
 		)
-
 		var re = buildRules(combineRules)
+	
 		for (line <- Source.fromFile(filename).getLines) {
 			println(parseValue(line, combineRules, re))
 		}
