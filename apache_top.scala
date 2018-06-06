@@ -4,7 +4,7 @@ import scala.collection.mutable.LinkedHashMap
 import scala.util.control.Breaks._
 import scala.collection._
 
-object at_parser {
+object apache_top {
 	def parseLog(line: String, rules: LinkedHashMap[String, String]): Map[String, String] = 
 	{
 		val re = s"${rules.values.reduce((a, b) => a + " " + b)}".r
