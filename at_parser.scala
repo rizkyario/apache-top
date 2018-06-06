@@ -1,9 +1,10 @@
 import scala.util.matching.Regex
 import scala.io.Source
+import scala.collection.mutable.ArrayBuffer
 import scala.collection.mutable.{LinkedHashMap => Map}
+import scala.util.control.Breaks._
 
 object at_parser {
-
 	def buildRules(rules: Map[String, String]): Regex = 
 	{
 		var rule = ""
@@ -16,6 +17,21 @@ object at_parser {
 			i = i + 1
 		}
 		(s"$rule".r)
+	}
+
+	def parseValue(line: String, rules: Map[String, String], re: Regex): Map[String, String] = 
+	{
+		var keys = Seq[String]()
+		for (key <- rules.keys) keys = keys:+ key
+		var values = Map[String, String]()
+		var i = 0
+		for (m <- re.findAllIn(line).matchData; e <- m.subgroups) 
+		{
+			values += ((keys(i) -> e))
+			i += 1
+		}
+		println(values)
+		values
 	}
 	
    	def main(args: Array[String]) {
@@ -34,9 +50,7 @@ object at_parser {
 
 		var re = buildRules(combineRules)
 		for (line <- Source.fromFile(filename).getLines) {
-			for(m <- re.findAllIn(line).matchData; e <- m.subgroups) 
-				print(e + "|")
-			println()
+			println(parseValue(line, combineRules, re))
 		}
    }
 }
