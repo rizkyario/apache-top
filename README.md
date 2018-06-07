@@ -11,7 +11,7 @@ sbt compile
 sbt "run apache.log"
 ```
 
-## Unit-Test
+## Unit Testing
 ```
 sbt test
 ```
