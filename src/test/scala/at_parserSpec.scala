@@ -93,6 +93,24 @@ class ApacheTopParserSpec extends FunSpec with BeforeAndAfter with GivenWhenThen
 		}
 	}
 
+	describe("Testing access log: Incomplete Log ...")
+	{
+		val log = this.parser.parseLog(ApacheTopSampleLog.data(5))
+		it("the result should be an empty map")
+		{
+			assert(log.isEmpty)
+		}
+	}
+
+	describe("Testing access log: No Timestamp ...")
+	{
+		val log = this.parser.parseLog(ApacheTopSampleLog.data(6))
+		it("the result should be an empty map")
+		{
+			assert(log.isEmpty)
+		}
+	}
+
 	describe("Testing access log: invalid format ...")
 	{
 		val log = this.parser.parseLog("Error")
