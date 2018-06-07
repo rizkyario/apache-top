@@ -4,6 +4,7 @@
 
 ## Usage
 ```
-scala apache_top.scala apache.log
+sbt compile
+sbt "run apache.log"
 ```
 
