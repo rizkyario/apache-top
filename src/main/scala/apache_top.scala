@@ -4,6 +4,7 @@ import scala.collection.mutable.LinkedHashMap
 import scala.collection._
 import java.io.File
 import java.text.SimpleDateFormat
+import util.control.Breaks._
 
 object apache_top {
 	def parseLog(line: String, rules: LinkedHashMap[String, String]): Map[String, String] = 
@@ -128,9 +129,9 @@ object apache_top {
 				fileSize = nfileSize
 				print("\u001b[H\u001b[J")
 				val logs = mutable.MutableList[Map[String, String]]()
-				for (line <- Source.fromFile(filename).getLines) {
+				for (line <- Source.fromFile(filename).getLines if line.length != 0)
+				{
 					val log = parseLog(line, combineRules)
-					parseDate(log("timestamp"))
 					logs += (log + ("date" -> parseDate(log("timestamp"))))
 				}
 				displaySummaryLog(filename, logs)
