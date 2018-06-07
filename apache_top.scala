@@ -70,7 +70,6 @@ object apache_top {
 
 	def displayLog(filename: String, logs: mutable.MutableList[Map[String, String]]) =
 	{
-		print("\033[H\033[J")
 		val fileSize = new File(filename).length
 		val size = logs.foldLeft(0){(total, log)=>{total + log("bytes").toInt}}
 		val failedRequests = logs.filter((log)=>(log("status").toInt >= 400)).size
@@ -109,8 +108,10 @@ object apache_top {
 			("referrer", "\"(.*?)\""),
 			("agent", "\"(.*?)\""),
 		)
+		print("\033[H\033[J")
 		while (true)
 		{
+			print("\033[0;0H")
 			val logs = mutable.MutableList[Map[String, String]]()
 			for (line <- Source.fromFile(filename).getLines) {
 				val log = parseLog(line, combineRules)
