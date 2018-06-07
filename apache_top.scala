@@ -3,6 +3,7 @@ import scala.io.Source
 import scala.collection.mutable.LinkedHashMap
 import scala.collection._
 import java.io.File
+import java.text.SimpleDateFormat
 
 object apache_top {
 	def parseLog(line: String, rules: LinkedHashMap[String, String]): Map[String, String] = 
@@ -19,7 +20,7 @@ object apache_top {
 
 	def displayVisitorLog(logs: mutable.MutableList[Map[String, String]], limit: Int) =
 	{
-		val gLogs = (for ((key, gLogs) <- logs.groupBy(_.get("timestamp")))
+		val gLogs = (for ((key, gLogs) <- logs.groupBy(_.get("date")))
 			yield
 			{
 				(
@@ -88,6 +89,11 @@ object apache_top {
 		displayVisitorLog(logs, 10)
 		displayRequestLog(logs, 10)
 	}
+
+	def parseDate(timestamp: String): String = {
+		val date = new SimpleDateFormat("[dd/MMM/yyyy:hh:mm:ss Z]").parse(timestamp)
+		new SimpleDateFormat("dd/MM/yyyy").format(date) 
+	}
 	
    	def main(args: Array[String])
 	{
@@ -108,7 +114,8 @@ object apache_top {
 			val logs = mutable.MutableList[Map[String, String]]()
 			for (line <- Source.fromFile(filename).getLines) {
 				val log = parseLog(line, combineRules)
-				logs += log
+				parseDate(log("timestamp"))
+				logs += (log + ("date" -> parseDate(log("timestamp"))))
 			}
 			displayLog(filename, logs)
 			Thread.sleep(1000)
