@@ -18,7 +18,6 @@ class ApacheTopPrinter(filename: String)
 		val req404s = for (log <- logs; if log("status").toInt == 404 ) yield {log("status") -> log("request")}
 
 		println("\n** APACHE TOP Overall Analysed Requests **\n")
-
 		println(f"Total Request   ${logs.length   }%-6d  Unique Visitors  ${visitors.distinct.length}%-6d        Referrers   ${referrers.distinct.length}%-6d  Log Source  $filename")
 		println(f"Valid Request   ${validRequests }%-6d  Unique Files     ${urls.distinct.length    }%-6d        Unique 404  ${req404s.distinct.length  }%-6d  Log Size    ${ApacheTopPrinter.toByteText(fileSize)}")
 		println(f"Failed Request  ${failedRequests}%-6d  Bandwidth        ${ApacheTopPrinter.toByteText(size)}")
@@ -26,19 +25,17 @@ class ApacheTopPrinter(filename: String)
 
 	def printVisitorLog(logs: List[Map[String, String]], limit: Int) =
 	{
-		val gLogs = (for ((key, gLogs) <- logs.groupBy(_.get("date")))
+		val gLogs = (
+			for ((key, gLogs) <- logs.groupBy(_.get("date")))
 			yield
-			{
-				(
-					key.get,
-					(for (log <- gLogs) yield (log("ip"))).distinct.length,
-					gLogs
-				)
-			}
-		).toSeq.sortWith(_._1 > _._1)
-		println(f"\n** 1. Unique Visitor per Day (${if (limit > gLogs.length) gLogs.length else limit}/${gLogs.length}) **\n")
-
+			{(
+				key.get,
+				(for (log <- gLogs) yield (log("ip"))).distinct.length,
+				gLogs
+			)}).toSeq.sortWith(_._1 > _._1)
 		val total = gLogs.foldLeft(0){(total, logs)=>{total + (for (log <- logs._3) yield (log("ip"))).distinct.length}}
+
+		println(f"\n** 1. Unique Visitor per Day (${if (limit > gLogs.length) gLogs.length else limit}/${gLogs.length}) **\n")
 		for ((log, i) <- gLogs.zipWithIndex)
 		{
 			val size = log._3.foldLeft(0){(total, log)=>{total + log("bytes").toInt}}
@@ -49,14 +46,15 @@ class ApacheTopPrinter(filename: String)
 
 	def printRequestLog(logs: List[Map[String, String]], limit: Int) =
 	{
-		val gLogs = (for((key, gLogs) <- logs.groupBy(_.get("request")))
+		val gLogs = (
+			for((key, gLogs) <- logs.groupBy(_.get("request")))
 			yield
 			(
 				key.get,
 				gLogs.length,
 				gLogs
-			)
-		).toSeq.sortWith(_._2 > _._2)
+			)).toSeq.sortWith(_._2 > _._2)
+
 		println(f"\n** 2. Top 10 Requested Files (URLs) (${if (limit > gLogs.length) gLogs.length else limit}/${gLogs.length}) **\n")
 		for ((log, i) <- gLogs.zipWithIndex)
 		{

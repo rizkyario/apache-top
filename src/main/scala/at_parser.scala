@@ -21,15 +21,16 @@ class ApacheTopParser(rules: LinkedHashMap[String, String])
 	{
 		val regexRule = this.rules.values.reduce((a, b) => a + " " + b)
 		val re = s"$regexRule".r
-		val log = (for
-		{
-			m <- re.findAllIn(line).matchData
-			(e, i) <- m.subgroups.zipWithIndex
-		}
-		yield
-		{
-			rules.keys.toSeq(i) -> e
-		}).toMap
+		val log = (
+			for
+			{
+				m <- re.findAllIn(line).matchData
+				(e, i) <- m.subgroups.zipWithIndex
+			}
+			yield
+			{
+				rules.keys.toSeq(i) -> e
+			}).toMap
 		if (log.exists(_._1 == "timestamp"))
 			log + ("date" -> ApacheTopParser.parseDate(log("timestamp")))
 		else
