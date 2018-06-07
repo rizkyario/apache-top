@@ -121,7 +121,7 @@ object apache_top {
 			if (nfileSize != fileSize)
 			{
 				fileSize = nfileSize
-				print("\033[H\033[J")
+				print("\u001b[H\u001b[J")
 				val logs = mutable.MutableList[Map[String, String]]()
 				for (line <- Source.fromFile(filename).getLines) {
 					val log = parseLog(line, combineRules)
