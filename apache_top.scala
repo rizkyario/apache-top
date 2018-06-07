@@ -18,6 +18,11 @@ object apache_top {
 		}) toMap
 	}
 
+	def displayProcentBar(value: Int, total: Int, length: Int): String =
+	{
+		"|" * (value.toFloat / total.toFloat * length).toInt
+	}
+
 	def displayVisitorLog(logs: mutable.MutableList[Map[String, String]], limit: Int) =
 	{
 		val gLogs = (for ((key, gLogs) <- logs.groupBy(_.get("date")))
@@ -31,11 +36,13 @@ object apache_top {
 			}
 		).toSeq.sortWith(_._1 > _._1)
 		println(f"\n** 1. Unique Visitor per Day (${if (limit > gLogs.length) gLogs.length else limit}/${gLogs.length}) **\n")
+
+		val total = gLogs.foldLeft(0){(total, logs)=>{total + (for (log <- logs._3) yield (log("ip"))).distinct.length}}
 		for ((log, i) <- gLogs.zipWithIndex)
 		{
 			val size = log._3.foldLeft(0){(total, log)=>{total + log("bytes").toInt}}
 			if (i < limit)
-				println(f"${log._2}%-4d  ${toByteText(size)}  ${log._1}")
+				println(f"${log._2}%-4d  ${toByteText(size)}  ${log._1}  ${displayProcentBar(log._2, total, 30)}")
 		}
 	}
 
@@ -108,6 +115,7 @@ object apache_top {
 			("referrer", "\"(.*?)\""),
 			("agent", "\"(.*?)\""),
 		)
+
 		while (true)
 		{
 			print("\033[H\033[J")
