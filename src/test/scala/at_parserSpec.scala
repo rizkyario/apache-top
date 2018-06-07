@@ -8,15 +8,14 @@ class ApacheTopParserSpec extends FunSpec with BeforeAndAfter with GivenWhenThen
 {
 	val parser = new ApacheTopParser
 
-	describe("Testing parseLog: complete...")
+	describe ("Testing parseLog: Complete Log...")
 	{
-		
 		val log = this.parser.parseLog(ApacheTopSampleLog.data(0))
-		it("the result should not be an empty map")
+		it ("the result should not be an empty map")
 		{
 			assert(!log.isEmpty)
 		}
-		it("the individual fields should be right")
+		it ("the individual fields should be right")
 		{
 			assert(log("ip") == "124.30.9.161")
 			assert(log("client") == "-")
@@ -30,14 +29,14 @@ class ApacheTopParserSpec extends FunSpec with BeforeAndAfter with GivenWhenThen
 		}
 	}
 
-	describe("Testing parseLog: no referrer ...")
+	describe ("Testing parseLog: No Referrer ...")
 	{
 		val log = this.parser.parseLog(ApacheTopSampleLog.data(1))
-		it("the result should not be an empty map")
+		it ("the result should not be an empty map")
 		{
 			assert(!log.isEmpty)
 		}
-		it("the individual fields should be right")
+		it ("the individual fields should be right")
 		{
 			assert(log("ip") == "89.166.165.223")
 			assert(log("client") == "-")
@@ -51,14 +50,14 @@ class ApacheTopParserSpec extends FunSpec with BeforeAndAfter with GivenWhenThen
 		}
 	}
 
-	describe("Testing parseLog: no data was returned to the client [ bytes == - ] ...")
+	describe ("Testing parseLog: No data was returned [ bytes == - ] ...")
 	{
 		val log = this.parser.parseLog(ApacheTopSampleLog.data(2))
-		it("the result should not be an empty map")
+		it ("the result should not be an empty map")
 		{
 			assert(!log.isEmpty)
 		}
-		it("the individual fields should be right")
+		it ("the individual fields should be right")
 		{
 			assert(log("ip") == "66.249.70.10")
 			assert(log("client") == "-")
@@ -72,14 +71,14 @@ class ApacheTopParserSpec extends FunSpec with BeforeAndAfter with GivenWhenThen
 		}
 	}
 
-	describe("Testing parseLog: IPv6 ...")
+	describe ("Testing parseLog: log contains IPv6 ...")
 	{
 		val log = this.parser.parseLog(ApacheTopSampleLog.data(3))
-		it("the result should not be an empty map")
+		it ("the result should not be an empty map")
 		{
 			assert(!log.isEmpty)
 		}
-		it("the individual fields should be right")
+		it ("the individual fields should be right")
 		{
 			assert(log("ip") == "2001:0db8:85a3:0000:0000:8a2e:0370:7334")
 			assert(log("client") == "-")
@@ -93,55 +92,55 @@ class ApacheTopParserSpec extends FunSpec with BeforeAndAfter with GivenWhenThen
 		}
 	}
 
-	describe("Testing parseLog: Incomplete Log ...")
+	describe ("Testing parseLog: Incomplete Log ...")
 	{
 		val log = this.parser.parseLog(ApacheTopSampleLog.data(5))
-		it("the result should be an empty map")
+		it ("the result should be an empty map")
 		{
 			assert(log.isEmpty)
 		}
 	}
 
-	describe("Testing parseLog: No Timestamp ...")
+	describe ("Testing parseLog: No Timestamp ...")
 	{
 		val log = this.parser.parseLog(ApacheTopSampleLog.data(6))
-		it("the result should be an empty map")
+		it ("the result should be an empty map")
 		{
 			assert(log.isEmpty)
 		}
 	}
 
-	describe("Testing parseLog: invalid format ...")
+	describe ("Testing parseLog: Invalid Format ...")
 	{
 		val log = this.parser.parseLog("Error")
-		it("the result should be an empty map")
+		it ("the result should be an empty map")
 		{
 			assert(log.isEmpty)
 		}
 	}
 
-	describe("Testing parseLog: empty line ...")
+	describe ("Testing parseLog: Empty Line ...")
 	{
 		val log = this.parser.parseLog("")
-		it("the result should be an empty map")
+		it ("the result should be an empty map")
 		{
 			assert(log.isEmpty)
 		}
 	}
 
-	describe("Testing parseDate: valid ...")
+	describe ("Testing parseDate: Valid Format ...")
 	{
 		val date = ApacheTopParser.parseDate("[21/Jul/2009:02:48:12 -0700]")
-		it("the result should be correct")
+		it ("the result should be correct")
 		{
 			assert(date == "2009/07/21")
 		}
 	}
 
-	describe("Testing parseDate: invalid ...")
+	describe ("Testing parseDate: Invalid Format ...")
 	{
 		val date = ApacheTopParser.parseDate("21/Jul/2009:02:48:12 -0700")
-		it("the result should be empty")
+		it ("the result should be empty")
 		{
 			assert(date.isEmpty)
 		}
