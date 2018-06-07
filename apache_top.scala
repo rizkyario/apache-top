@@ -24,18 +24,18 @@ object apache_top {
 			yield
 			{
 				(
-					key, 
+					key.get, 
 					(for (log <- gLogs) yield (log("ip"))).distinct.length,
 					gLogs
 				)
 			}
-		).toSeq.sortWith(_._2 > _._2)
+		).toSeq.sortWith(_._1 > _._1)
 		println(f"\n** 1. Unique Visitor per Day (${if (limit > gLogs.length) gLogs.length else limit}/${gLogs.length}) **\n")
 		for ((log, i) <- gLogs.zipWithIndex)
 		{
 			val size = log._3.foldLeft(0){(total, log)=>{total + log("bytes").toInt}}
 			if (i < limit)
-				println(f"${log._2}%-6d  ${toByteText(size)}  ${log._1}")
+				println(f"${log._2}%-4d  ${toByteText(size)}  ${log._1}")
 		}
 	}
 
@@ -54,7 +54,7 @@ object apache_top {
 		val gLogs = (for((key, gLogs) <- logs.groupBy(_.get("request"))) 
 			yield 
 			(
-				key,
+				key.get,
 				gLogs.length,
 				gLogs
 			)
@@ -64,7 +64,7 @@ object apache_top {
 		{
 			val size = log._3.foldLeft(0){(total, log)=>{total + log("bytes").toInt}}
 			if (i < limit)
-				println(f"${log._2}%-6d  ${toByteText(size)}  ${log._1}")
+				println(f"${log._2}%-4d  ${toByteText(size)}  ${log._1.split(" ")(0)}%-6s ${log._1.split(" ")(2)}%-10s  ${log._1.split(" ")(1)}")
 		}
 	}
 
@@ -91,7 +91,7 @@ object apache_top {
 
 	def parseDate(timestamp: String): String = {
 		val date = new SimpleDateFormat("[dd/MMM/yyyy:hh:mm:ss Z]").parse(timestamp)
-		new SimpleDateFormat("dd/MM/yyyy").format(date) 
+		new SimpleDateFormat("yyyy/MM/dd").format(date) 
 	}
 	
    	def main(args: Array[String])
@@ -108,10 +108,9 @@ object apache_top {
 			("referrer", "\"(.*?)\""),
 			("agent", "\"(.*?)\""),
 		)
-		print("\033[H\033[J")
 		while (true)
 		{
-			print("\033[0;0H")
+			print("\033[H\033[J")
 			val logs = mutable.MutableList[Map[String, String]]()
 			for (line <- Source.fromFile(filename).getLines) {
 				val log = parseLog(line, combineRules)
