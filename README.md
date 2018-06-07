@@ -4,6 +4,6 @@
 
 ## Usage
 ```
-scala at_parser.scala apache.log
+scala apache_top.scala apache.log
 ```
 
