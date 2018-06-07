@@ -1,3 +1,5 @@
+package com.rizkyario.apache_top
+
 import scala.util.matching.Regex
 import scala.io.Source
 import scala.collection.mutable.LinkedHashMap
