@@ -3,7 +3,8 @@ package com.rizkyario.apache_top
 import java.io.File
 import java.text.SimpleDateFormat
 
-class ApacheTopPrinter(filename: String) {
+class ApacheTopPrinter(filename: String)
+{
 
 	def printSummaryLog(logs: List[Map[String, String]]) =
 	{
@@ -66,7 +67,8 @@ class ApacheTopPrinter(filename: String) {
 	}
 }
 
-object ApacheTopPrinter {
+object ApacheTopPrinter
+{
 	def toByteText(bytes: Long): String =
 	{
 		if (bytes > 1000000000)

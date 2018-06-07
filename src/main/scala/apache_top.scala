@@ -1,13 +1,10 @@
 package com.rizkyario.apache_top
 
-import scala.util.matching.Regex
 import scala.io.Source
-import scala.collection.mutable
 import java.io.File
-import util.control.Breaks._
 
-object apache_top {
-	
+object apache_top
+{	
    	def main(args: Array[String])
 	{
 		if (args.length == 0)
