@@ -18,6 +18,16 @@ object apache_top {
 		}) toMap
 	}
 
+	def displayRequestedLog(logs: mutable.MutableList[Map[String, String]]) =
+	{
+		val uUrls = for
+		{
+			(key, xs) <- logs.groupBy(_.get("request"))
+		} yield (key, xs.length)
+
+		println(uUrls)
+	}
+
 	def displayLog(filename: String, logs: mutable.MutableList[Map[String, String]]) =
 	{
 		print("\033[H\033[J")
@@ -33,17 +43,17 @@ object apache_top {
 		val req404s = for (log <- logs; if log("status").toInt == 404 ) yield {log("status") -> log("request")}
 		println("\n** APACHE TOP Overall Analysed Requests **\n")
 
-		println(f"Total Request   ${request }%-6d Unique Visitors  ${visitors.distinct.length}%-6d        Referrers   ${referrers.distinct.length}%-6d  Log Source  $filename")
-		println(f"Valid Request   ${vRequest}%-6d Unique Files     ${urls.distinct.length    }%-6d        Unique 404  ${req404s.distinct.length  }%-6d  Log Size    ${fileSize.toFloat/1000    }%-4.2f KiB")
-		println(f"Failed Request  ${fRequest}%-6d Bandwidth        ${size.toFloat/1000       }%-4.2f KiB")
+		println(f"Total Request   ${request }%-6d  Unique Visitors  ${visitors.distinct.length}%-6d        Referrers   ${referrers.distinct.length}%-6d  Log Source  $filename")
+		println(f"Valid Request   ${vRequest}%-6d  Unique Files     ${urls.distinct.length    }%-6d        Unique 404  ${req404s.distinct.length  }%-6d  Log Size    ${fileSize.toFloat/1000    }%-4.2f KiB")
+		println(f"Failed Request  ${fRequest}%-6d  Bandwidth        ${size.toFloat/1000       }%-4.2f KiB")
 
 		println("\n** 1. Unique Visitor per Day **\n")
 		
-		println(visitors)
+		println("WIP")
 
 		println("\n** 2. Requested Files (URLs) **\n")
 
-		println(urls)
+		displayRequestedLog(logs)
 	}
 	
    	def main(args: Array[String])
