@@ -1,7 +1,6 @@
 import scala.util.matching.Regex
 import scala.io.Source
 import scala.collection.mutable.LinkedHashMap
-import scala.util.control.Breaks._
 import scala.collection._
 import java.io.File
 
@@ -18,31 +17,53 @@ object apache_top {
 		}) toMap
 	}
 
-	def displayVisitorLog(logs: mutable.MutableList[Map[String, String]]) =
+	def displayVisitorLog(logs: mutable.MutableList[Map[String, String]], limit: Int) =
 	{
-		val days = (for
+		val gLogs = (for ((key, gLogs) <- logs.groupBy(_.get("timestamp")))
+			yield
+			{
+				(
+					key, 
+					(for (log <- gLogs) yield (log("ip"))).distinct.length,
+					gLogs
+				)
+			}
+		).toSeq.sortWith(_._2 > _._2)
+		println(f"\n** 1. Unique Visitor per Day (${if (limit > gLogs.length) gLogs.length else limit}/${gLogs.length}) **\n")
+		for ((log, i) <- gLogs.zipWithIndex)
 		{
-			(key, xs) <- logs.groupBy(_.get("timestamp"))
-		} yield (key, xs.length)).toSeq.sortWith(_._2 > _._2)
-
-		for ((url, i) <- days.zipWithIndex)
-		{
-			if (i < 10)
-				println(f"${url._2}: ${url._1}")
+			val size = log._3.foldLeft(0){(total, log)=>{total + log("bytes").toInt}}
+			if (i < limit)
+				println(f"${log._2}%-6d  ${toByteText(size)}  ${log._1}")
 		}
 	}
 
-	def displayRequestLog(logs: mutable.MutableList[Map[String, String]]) =
+	def toByteText(bytes: Long): String =
 	{
-		val uUrls = (for
-		{
-			(key, xs) <- logs.groupBy(_.get("request"))
-		} yield (key, xs.length)).toSeq.sortWith(_._2 > _._2)
+		if (bytes > 1000000000)
+			f"${bytes.toFloat/1000000000}%-5.2f GiB"
+		else if (bytes > 1000000)
+			f"${bytes.toFloat/1000000}%-5.2f MiB"
+		else
+			f"${bytes.toFloat/1000}%-5.2f KiB"
+	}
 
-		for ((url, i) <- uUrls.zipWithIndex)
+	def displayRequestLog(logs: mutable.MutableList[Map[String, String]], limit: Int) =
+	{
+		val gLogs = (for((key, gLogs) <- logs.groupBy(_.get("request"))) 
+			yield 
+			(
+				key,
+				gLogs.length,
+				gLogs
+			)
+		).toSeq.sortWith(_._2 > _._2)
+		println(f"\n** 2. Top 10 Requested Files (URLs) (${if (limit > gLogs.length) gLogs.length else limit}/${gLogs.length}) **\n")
+		for ((log, i) <- gLogs.zipWithIndex)
 		{
-			if (i < 10)
-				println(f"${url._2}: ${url._1}")
+			val size = log._3.foldLeft(0){(total, log)=>{total + log("bytes").toInt}}
+			if (i < limit)
+				println(f"${log._2}%-6d  ${toByteText(size)}  ${log._1}")
 		}
 	}
 
@@ -61,16 +82,11 @@ object apache_top {
 		println("\n** APACHE TOP Overall Analysed Requests **\n")
 
 		println(f"Total Request   ${logs.length   }%-6d  Unique Visitors  ${visitors.distinct.length}%-6d        Referrers   ${referrers.distinct.length}%-6d  Log Source  $filename")
-		println(f"Valid Request   ${validRequests }%-6d  Unique Files     ${urls.distinct.length    }%-6d        Unique 404  ${req404s.distinct.length  }%-6d  Log Size    ${fileSize.toFloat/1000    }%-4.2f KiB")
-		println(f"Failed Request  ${failedRequests}%-6d  Bandwidth        ${size.toFloat/1000       }%-4.2f KiB")
+		println(f"Valid Request   ${validRequests }%-6d  Unique Files     ${urls.distinct.length    }%-6d        Unique 404  ${req404s.distinct.length  }%-6d  Log Size    ${toByteText(fileSize)}")
+		println(f"Failed Request  ${failedRequests}%-6d  Bandwidth        ${toByteText(size)}")
 
-		println("\n** 1. Unique Visitor per Day **\n")
-		
-		displayVisitorLog(logs)
-
-		println("\n** 2. Top 10 Requested Files (URLs) **\n")
-
-		displayRequestLog(logs)
+		displayVisitorLog(logs, 10)
+		displayRequestLog(logs, 10)
 	}
 	
    	def main(args: Array[String])
@@ -87,17 +103,15 @@ object apache_top {
 			("referrer", "\"(.*?)\""),
 			("agent", "\"(.*?)\""),
 		)
-		// while (true)
-		// {
+		while (true)
+		{
 			val logs = mutable.MutableList[Map[String, String]]()
 			for (line <- Source.fromFile(filename).getLines) {
 				val log = parseLog(line, combineRules)
 				logs += log
-				displayLog(filename, logs)
-				Thread.sleep(1000)
 			}
-		// 	displayLog(logs)
-		// 	Thread.sleep(1000)
-		// }
+			displayLog(filename, logs)
+			Thread.sleep(1000)
+		}
    }
 }
