@@ -49,11 +49,11 @@ object apache_top {
 	def toByteText(bytes: Long): String =
 	{
 		if (bytes > 1000000000)
-			f"${bytes.toFloat/1000000000}%-5.2f GiB"
+			f"${bytes.toFloat/1000000000}%-6.2f GiB"
 		else if (bytes > 1000000)
-			f"${bytes.toFloat/1000000}%-5.2f MiB"
+			f"${bytes.toFloat/1000000   }%-6.2f MiB"
 		else
-			f"${bytes.toFloat/1000}%-5.2f KiB"
+			f"${bytes.toFloat/1000      }%-6.2f KiB"
 	}
 
 	def displayRequestLog(logs: mutable.MutableList[Map[String, String]], limit: Int) =
@@ -75,7 +75,7 @@ object apache_top {
 		}
 	}
 
-	def displayLog(filename: String, logs: mutable.MutableList[Map[String, String]]) =
+	def displaySummaryLog(filename: String, logs: mutable.MutableList[Map[String, String]]) =
 	{
 		val fileSize = new File(filename).length
 		val size = logs.foldLeft(0){(total, log)=>{total + log("bytes").toInt}}
@@ -91,9 +91,6 @@ object apache_top {
 		println(f"Total Request   ${logs.length   }%-6d  Unique Visitors  ${visitors.distinct.length}%-6d        Referrers   ${referrers.distinct.length}%-6d  Log Source  $filename")
 		println(f"Valid Request   ${validRequests }%-6d  Unique Files     ${urls.distinct.length    }%-6d        Unique 404  ${req404s.distinct.length  }%-6d  Log Size    ${toByteText(fileSize)}")
 		println(f"Failed Request  ${failedRequests}%-6d  Bandwidth        ${toByteText(size)}")
-
-		displayVisitorLog(logs, 10)
-		displayRequestLog(logs, 10)
 	}
 
 	def parseDate(timestamp: String): String = {
@@ -126,7 +123,9 @@ object apache_top {
 				parseDate(log("timestamp"))
 				logs += (log + ("date" -> parseDate(log("timestamp"))))
 			}
-			displayLog(filename, logs)
+			displaySummaryLog(filename, logs)
+			displayVisitorLog(logs, 20)
+			displayRequestLog(logs, 20)
 			Thread.sleep(delay)
 		}
    }
