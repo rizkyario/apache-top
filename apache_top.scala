@@ -10,13 +10,12 @@ object apache_top {
 	{
 		val regexRule = rules.values.reduce((a, b) => a + " " + b)
 		val re = s"$regexRule".r
-		val values = for {
+		(for {
 			m <- re.findAllIn(line).matchData
 			(e, i) <- m.subgroups.zipWithIndex
 		} yield {
 			rules.keys.toSeq(i) -> e
-		}
-		values.map(c => c._1 -> c._2).toMap
+		}) toMap
 	}
 
 	def displayLog(filename: String, logs: mutable.MutableList[Map[String, String]]) =
