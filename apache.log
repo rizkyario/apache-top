@@ -33,3 +33,5 @@
 172.20.0.4 - - [06/Jun/2018:10:32:39 +0000] "GET /photos/1 HTTP/1.1" 200 3541 "http://localhost/photos/1" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.117 Safari/537.36"
 172.20.0.1 - - [08/Jun/2018:10:32:39 +0000] "GET /favicon.ico HTTP/1.1" 302 353 "http://localhost/photos/1" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.117 Safari/537.36"
 172.20.0.1 - - [06/Jun/2018:10:32:39 +0000] "GET / HTTP/1.1" 200 4213 "http://localhost/photos/1" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.117 Safari/537.36"
+172.20.0.1 - - [06/Jun/2018:10:32:39 +0000] "GET / HTTP/1.1" 200 4213 "http://localhost/photos/1" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.117 Safari/537.36"
+172.20.0.1 - - [06/Jun/2018:10:32:39 +0000] "GET / HTTP/1.1" 200 4213 "http://localhost/photos/1" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.117 Safari/537.36"

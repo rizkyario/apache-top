@@ -114,18 +114,24 @@ object apache_top {
 			("agent", "\"(.*?)\""),
 		)
 
+		var fileSize: Long = 0
 		while (true)
 		{
-			print("\033[H\033[J")
-			val logs = mutable.MutableList[Map[String, String]]()
-			for (line <- Source.fromFile(filename).getLines) {
-				val log = parseLog(line, combineRules)
-				parseDate(log("timestamp"))
-				logs += (log + ("date" -> parseDate(log("timestamp"))))
+			val nfileSize = new File(filename).length
+			if (nfileSize != fileSize)
+			{
+				fileSize = nfileSize
+				print("\033[H\033[J")
+				val logs = mutable.MutableList[Map[String, String]]()
+				for (line <- Source.fromFile(filename).getLines) {
+					val log = parseLog(line, combineRules)
+					parseDate(log("timestamp"))
+					logs += (log + ("date" -> parseDate(log("timestamp"))))
+				}
+				displaySummaryLog(filename, logs)
+				displayVisitorLog(logs, 20)
+				displayRequestLog(logs, 20)
 			}
-			displaySummaryLog(filename, logs)
-			displayVisitorLog(logs, 20)
-			displayRequestLog(logs, 20)
 			Thread.sleep(delay)
 		}
    }
