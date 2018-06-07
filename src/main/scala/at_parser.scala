@@ -32,7 +32,9 @@ class ApacheTopParser(rules: LinkedHashMap[String, String])
 				rules.keys.toSeq(i) -> e
 			}).toMap
 		if (log.exists(_._1 == "timestamp"))
+		{
 			log + ("date" -> ApacheTopParser.parseDate(log("timestamp")))
+		}
 		else
 			log
 	}
@@ -52,4 +54,10 @@ object ApacheTopParser
 			case e: Exception => ""
 		}
 	}
+
+	def parseRequestField(request: String): Tuple3[String, String, String] =
+	{
+        val arr = request.split(" ")
+        if (arr.size == 3) ((arr(0), arr(1), arr(2))) else ("", "", "")
+    }
 }
