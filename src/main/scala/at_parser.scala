@@ -17,7 +17,7 @@ class ApacheTopParser(rules: LinkedHashMap[String, String])
 		("agent", "\"(.*?)\"")
 	))
 
-	def parseLog(line: String): Map[String, String] = 
+	def parseLog(line: String): Map[String, String] =
 	{
 		val regexRule = this.rules.values.reduce((a, b) => a + " " + b)
 		val re = s"$regexRule".r
@@ -39,6 +39,6 @@ object ApacheTopParser
 	def parseDate(timestamp: String): String =
 	{
 		val date = new SimpleDateFormat("[dd/MMM/yyyy:hh:mm:ss Z]").parse(timestamp)
-		new SimpleDateFormat("yyyy/MM/dd").format(date) 
+		new SimpleDateFormat("yyyy/MM/dd").format(date)
 	}
 }

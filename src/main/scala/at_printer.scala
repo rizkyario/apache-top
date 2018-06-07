@@ -30,7 +30,7 @@ class ApacheTopPrinter(filename: String)
 			yield
 			{
 				(
-					key.get, 
+					key.get,
 					(for (log <- gLogs) yield (log("ip"))).distinct.length,
 					gLogs
 				)
@@ -49,8 +49,8 @@ class ApacheTopPrinter(filename: String)
 
 	def printRequestLog(logs: List[Map[String, String]], limit: Int) =
 	{
-		val gLogs = (for((key, gLogs) <- logs.groupBy(_.get("request"))) 
-			yield 
+		val gLogs = (for((key, gLogs) <- logs.groupBy(_.get("request")))
+			yield
 			(
 				key.get,
 				gLogs.length,
