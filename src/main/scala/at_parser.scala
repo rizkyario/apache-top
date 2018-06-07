@@ -41,7 +41,14 @@ object ApacheTopParser
 {
 	def parseDate(timestamp: String): String =
 	{
-		val date = new SimpleDateFormat("[dd/MMM/yyyy:hh:mm:ss Z]").parse(timestamp)
-		new SimpleDateFormat("yyyy/MM/dd").format(date)
+		try
+		{
+			val date = new SimpleDateFormat("[dd/MMM/yyyy:hh:mm:ss Z]").parse(timestamp)
+			new SimpleDateFormat("yyyy/MM/dd").format(date)
+		}
+		catch
+		{
+			case e: Exception => ""
+		}
 	}
 }

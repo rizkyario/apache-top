@@ -8,7 +8,7 @@ class ApacheTopParserSpec extends FunSpec with BeforeAndAfter with GivenWhenThen
 {
 	val parser = new ApacheTopParser
 
-	describe("Testing access log: complete...")
+	describe("Testing parseLog: complete...")
 	{
 		
 		val log = this.parser.parseLog(ApacheTopSampleLog.data(0))
@@ -30,7 +30,7 @@ class ApacheTopParserSpec extends FunSpec with BeforeAndAfter with GivenWhenThen
 		}
 	}
 
-	describe("Testing access log: no referrer ...")
+	describe("Testing parseLog: no referrer ...")
 	{
 		val log = this.parser.parseLog(ApacheTopSampleLog.data(1))
 		it("the result should not be an empty map")
@@ -51,7 +51,7 @@ class ApacheTopParserSpec extends FunSpec with BeforeAndAfter with GivenWhenThen
 		}
 	}
 
-	describe("Testing access log: no data was returned to the client [ bytes == - ] ...")
+	describe("Testing parseLog: no data was returned to the client [ bytes == - ] ...")
 	{
 		val log = this.parser.parseLog(ApacheTopSampleLog.data(2))
 		it("the result should not be an empty map")
@@ -72,7 +72,7 @@ class ApacheTopParserSpec extends FunSpec with BeforeAndAfter with GivenWhenThen
 		}
 	}
 
-	describe("Testing access log: IPv6 ...")
+	describe("Testing parseLog: IPv6 ...")
 	{
 		val log = this.parser.parseLog(ApacheTopSampleLog.data(3))
 		it("the result should not be an empty map")
@@ -93,7 +93,7 @@ class ApacheTopParserSpec extends FunSpec with BeforeAndAfter with GivenWhenThen
 		}
 	}
 
-	describe("Testing access log: Incomplete Log ...")
+	describe("Testing parseLog: Incomplete Log ...")
 	{
 		val log = this.parser.parseLog(ApacheTopSampleLog.data(5))
 		it("the result should be an empty map")
@@ -102,7 +102,7 @@ class ApacheTopParserSpec extends FunSpec with BeforeAndAfter with GivenWhenThen
 		}
 	}
 
-	describe("Testing access log: No Timestamp ...")
+	describe("Testing parseLog: No Timestamp ...")
 	{
 		val log = this.parser.parseLog(ApacheTopSampleLog.data(6))
 		it("the result should be an empty map")
@@ -111,12 +111,39 @@ class ApacheTopParserSpec extends FunSpec with BeforeAndAfter with GivenWhenThen
 		}
 	}
 
-	describe("Testing access log: invalid format ...")
+	describe("Testing parseLog: invalid format ...")
 	{
 		val log = this.parser.parseLog("Error")
 		it("the result should be an empty map")
 		{
 			assert(log.isEmpty)
+		}
+	}
+
+	describe("Testing parseLog: empty line ...")
+	{
+		val log = this.parser.parseLog("")
+		it("the result should be an empty map")
+		{
+			assert(log.isEmpty)
+		}
+	}
+
+	describe("Testing parseDate: valid ...")
+	{
+		val date = ApacheTopParser.parseDate("[21/Jul/2009:02:48:12 -0700]")
+		it("the result should be correct")
+		{
+			assert(date == "2009/07/21")
+		}
+	}
+
+	describe("Testing parseDate: invalid ...")
+	{
+		val date = ApacheTopParser.parseDate("21/Jul/2009:02:48:12 -0700")
+		it("the result should be empty")
+		{
+			assert(date.isEmpty)
 		}
 	}
 }
