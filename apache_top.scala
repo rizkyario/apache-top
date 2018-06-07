@@ -104,6 +104,7 @@ object apache_top {
    	def main(args: Array[String])
 	{
 	   	val filename = args(0)
+		val delay = 1000
 		val combineRules = LinkedHashMap(
 			("ip", "(\\S+)"),
 			("client", "(\\S+)"),
@@ -126,7 +127,7 @@ object apache_top {
 				logs += (log + ("date" -> parseDate(log("timestamp"))))
 			}
 			displayLog(filename, logs)
-			Thread.sleep(1000)
+			Thread.sleep(delay)
 		}
    }
 }
