@@ -10,17 +10,17 @@ class ApacheTopPrinter(filename: String)
 	{
 		val fileSize = new File(this.filename).length
 		val size = logs.foldLeft(0){(total, log)=>{total + log("bytes").toInt}}
-		val failedRequests = logs.filter((log)=>(log("status").toInt >= 400)).size
-		val validRequests = logs.filter((log)=>(log("status").toInt < 400)).size
+		val failedRequests = logs.filter((log)=>(log("status").toInt >= 400))
+		val validRequests = logs.filter((log)=>(log("status").toInt < 400))
 		val visitors = (for (log <- logs) yield (log("ip")))
 		val referrers = (for (log <- logs) yield (log("referrer")))
-		val urls = (for (log <- logs) yield (log("request").split(" ")(1)))
+		val requests = (for (log <- logs) yield (log("request").split(" ")(1)))
 		val req404s = for (log <- logs; if log("status").toInt == 404 ) yield {log("status") -> log("request")}
 
 		println("\n** APACHE TOP Overall Analysed Requests **\n")
-		println(f"Total Request   ${logs.length   }%-6d  Unique Visitors  ${visitors.distinct.length}%-6d        Referrers   ${referrers.distinct.length}%-6d  Log Source  $filename")
-		println(f"Valid Request   ${validRequests }%-6d  Unique Files     ${urls.distinct.length    }%-6d        Unique 404  ${req404s.distinct.length  }%-6d  Log Size    ${ApacheTopPrinter.toByteText(fileSize)}")
-		println(f"Failed Request  ${failedRequests}%-6d  Bandwidth        ${ApacheTopPrinter.toByteText(size)}")
+		println(f"Total Request   ${logs.length        }%-6d  Unique Visitors  ${visitors.distinct.length}%-6d        Referrers   ${referrers.distinct.length}%-6d  Log Source  $filename")
+		println(f"Valid Request   ${validRequests.size }%-6d  Unique Files     ${requests.distinct.length}%-6d        Unique 404  ${req404s.distinct.length  }%-6d  Log Size    ${ApacheTopPrinter.toByteText(fileSize)}")
+		println(f"Failed Request  ${failedRequests.size}%-6d  Bandwidth        ${ApacheTopPrinter.toByteText(size)}")
 	}
 
 	def printVisitorLog(logs: List[Map[String, String]], limit: Int) =
