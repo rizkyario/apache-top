@@ -100,6 +100,11 @@ object apache_top {
 	
    	def main(args: Array[String])
 	{
+		if (args.length == 0)
+		{
+			println("Usage ./apache_top [log_file]")
+			sys.exit(0)
+		}
 	   	val filename = args(0)
 		val delay = 1000
 		val combineRules = LinkedHashMap(
