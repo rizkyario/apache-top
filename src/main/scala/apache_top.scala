@@ -15,7 +15,6 @@ object apache_top
 	   	val filename = args(0)
 		val delay = 1000
 		val parser = new ApacheTopParser
-		val printer = new ApacheTopPrinter(filename)
 		var fileSize: Long = 0
 		while (true)
 		{
@@ -26,9 +25,10 @@ object apache_top
 				ApacheTopPrinter clearScreen
 				val logs = (for (line <- Source.fromFile(filename).getLines if line.length != 0)
 							yield(parser.parseLog(line))).toList
-				printer.printSummaryLog(logs)
-				printer.printVisitorLog(logs, 20)
-				printer.printRequestLog(logs, 20)
+				val printer = new ApacheTopPrinter(filename, logs)
+				printer.printSummaryLog()
+				printer.printVisitorLog(20)
+				printer.printRequestLog(20)
 			}
 			Thread.sleep(delay)
 		}

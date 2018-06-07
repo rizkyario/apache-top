@@ -3,29 +3,29 @@ package com.rizkyario.apache_top
 import java.io.File
 import java.text.SimpleDateFormat
 
-class ApacheTopPrinter(filename: String, var logs: List[Map[String, String]] = List[Map[String, String]]())
+class ApacheTopPrinter(filename: String, var logs: List[Map[String, String]])
 {
 	type LogType = Map[String, String]
 
-	val fileSize = new File(this.filename).length
-	def getReqSize(logs: List[LogType] = logs): Int = logs.foldLeft(0){(total, log)=>{total + log("bytes").toInt}}
-	def getFailedRequests(logs: List[LogType] = logs): List[LogType] = logs.filter((log)=>(log("status").toInt >= 400))
-	def getValidRequests(logs: List[LogType] = logs): List[LogType] = logs.filter((log)=>(log("status").toInt < 400))
-	def getVisitors(logs: List[LogType] = logs): List[String] = (for (log <- logs) yield (log("ip"))).distinct
-	def getReferrers(logs: List[LogType] = logs): List[String] = (for (log <- logs) yield (log("referrer"))).distinct
-	def getRequests(logs: List[LogType] = logs): List[String] = (for (log <- logs) yield (log("request").split(" ")(1))).distinct
-	def getReq404s(logs: List[LogType] = logs): List[(String, String)] = (for (log <- logs; if log("status").toInt == 404 ) yield {log("status") -> log("request")}).distinct
+	def printFileSize 		(filename: String = filename): String = ApacheTopPrinter.toByteText(new File(this.filename).length)
+	def printReqSize		(logs: List[LogType] = logs): String = ApacheTopPrinter.toByteText(logs.foldLeft(0){(total, log)=>{total + log("bytes").toInt}})
+	def printTotalRequests	(logs: List[LogType] = logs): String = ApacheTopPrinter.toMetric(logs.length)
+	def printFailedRequests (logs: List[LogType] = logs): String = ApacheTopPrinter.toMetric(logs.filter((log)=>(log("status").toInt >= 400)).size)
+	def printValidRequests	(logs: List[LogType] = logs): String = ApacheTopPrinter.toMetric(logs.filter((log)=>(log("status").toInt < 400)).size)
+	def printVisitors		(logs: List[LogType] = logs): String = ApacheTopPrinter.toMetric((for (log <- logs) yield (log("ip"))).distinct.length)
+	def printReferrers		(logs: List[LogType] = logs): String = ApacheTopPrinter.toMetric((for (log <- logs) yield (log("referrer"))).distinct.length)
+	def printRequests		(logs: List[LogType] = logs): String = ApacheTopPrinter.toMetric((for (log <- logs) yield (log("request").split(" ")(1))).distinct.length)
+	def printReq404s		(logs: List[LogType] = logs): String = ApacheTopPrinter.toMetric((for (log <- logs; if log("status").toInt == 404 ) yield {log("status") -> log("request")}).distinct.length)
 
-	def printSummaryLog(logs: List[Map[String, String]]) =
+	def printSummaryLog() =
 	{
-		this.logs = logs
 		println("\n** APACHE TOP Overall Analysed Requests **\n")
-		println(f"Total Request   ${this.logs.length        }%-6d  Unique Visitors  ${getVisitors().length}%-6d        Referrers   ${getReferrers().length}%-6d  Log Source  $filename")
-		println(f"Valid Request   ${getValidRequests().size }%-6d  Unique Files     ${getRequests().length}%-6d        Unique 404  ${getReq404s().length  }%-6d  Log Size    ${ApacheTopPrinter.toByteText(fileSize)}")
-		println(f"Failed Request  ${getFailedRequests().size}%-6d  Bandwidth        ${ApacheTopPrinter.toByteText(getReqSize())}")
+		println(f"Total Request   ${printTotalRequests() }  Unique Visitors  ${printVisitors()}        Referrers   ${printReferrers()}  Log Source  $filename")
+		println(f"Valid Request   ${printValidRequests() }  Unique Files     ${printRequests()}        Unique 404  ${printReq404s()  }  Log Size    ${printFileSize()}")
+		println(f"Failed Request  ${printFailedRequests()}  Bandwidth        ${printReqSize() }")
 	}
 
-	def printVisitorLog(logs: List[Map[String, String]], limit: Int) =
+	def printVisitorLog(limit: Int) =
 	{
 		val gLogs = (
 			for ((key, gLogs) <- logs.groupBy(_.get("date")))
@@ -41,11 +41,11 @@ class ApacheTopPrinter(filename: String, var logs: List[Map[String, String]] = L
 		for ((log, i) <- gLogs.zipWithIndex)
 		{
 			if (i < limit)
-				println(f"${log._2}%-4d  ${ApacheTopPrinter.toByteText(getReqSize(log._3))}  ${log._1}  ${ApacheTopPrinter.printProcentBar(log._2, total, 30)}")
+				println(f"${log._2}%-4d  ${printReqSize(log._3)}  ${log._1}  ${ApacheTopPrinter.printProcentBar(log._2, total, 30)}")
 		}
 	}
 
-	def printRequestLog(logs: List[Map[String, String]], limit: Int) =
+	def printRequestLog(limit: Int) =
 	{
 		val gLogs = (
 			for((key, gLogs) <- logs.groupBy(_.get("request")))
@@ -61,7 +61,7 @@ class ApacheTopPrinter(filename: String, var logs: List[Map[String, String]] = L
 		{
 			val (requestType, uri, httpVersion) = ApacheTopPrinter.parseRequestField(log._1)
 			if (i < limit)
-				println(f"${log._2}%-4d  ${ApacheTopPrinter.toByteText(getReqSize(log._3))}  ${requestType}%-6s ${httpVersion}%-10s  ${uri}")
+				println(f"${log._2}%-4d  ${printReqSize(log._3)}  ${requestType}%-6s ${httpVersion}%-10s  ${uri}")
 		}
 	}
 }
