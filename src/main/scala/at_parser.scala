@@ -30,7 +30,10 @@ class ApacheTopParser(rules: LinkedHashMap[String, String])
 		{
 			rules.keys.toSeq(i) -> e
 		}).toMap
-		log + ("date" -> ApacheTopParser.parseDate(log("timestamp")))
+		if (log.exists(_._1 == "timestamp"))
+			log + ("date" -> ApacheTopParser.parseDate(log("timestamp")))
+		else
+			log
 	}
 }
 

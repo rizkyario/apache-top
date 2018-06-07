@@ -8,13 +8,13 @@ class ApacheTopParserSpec extends FunSpec with BeforeAndAfter with GivenWhenThen
 {
 	val parser = new ApacheTopParser
 
-	describe("Testing access log 0...")
+	describe("Testing access log: complete...")
 	{
 		
 		val log = this.parser.parseLog(ApacheTopSampleLog.data(0))
-		it("the result should not be None")
+		it("the result should not be an empty map")
 		{
-			assert(log != None)
+			assert(!log.isEmpty)
 		}
 		it("the individual fields should be right")
 		{
@@ -30,12 +30,12 @@ class ApacheTopParserSpec extends FunSpec with BeforeAndAfter with GivenWhenThen
 		}
 	}
 
-	describe("Testing access log 1...")
+	describe("Testing access log: no referrer ...")
 	{
 		val log = this.parser.parseLog(ApacheTopSampleLog.data(1))
-		it("the result should not be None")
+		it("the result should not be an empty map")
 		{
-			assert(log != None)
+			assert(!log.isEmpty)
 		}
 		it("the individual fields should be right")
 		{
@@ -51,12 +51,12 @@ class ApacheTopParserSpec extends FunSpec with BeforeAndAfter with GivenWhenThen
 		}
 	}
 
-	describe("Testing bad access log ...")
+	describe("Testing access log: no data was returned to the client [ bytes == - ] ...")
 	{
-		val log = this.parser.parseLog(ApacheTopSampleLog.badData(0))
-		it("the result should not be None")
+		val log = this.parser.parseLog(ApacheTopSampleLog.data(2))
+		it("the result should not be an empty map")
 		{
-			assert(log != None)
+			assert(!log.isEmpty)
 		}
 		it("the individual fields should be right")
 		{
@@ -69,6 +69,36 @@ class ApacheTopParserSpec extends FunSpec with BeforeAndAfter with GivenWhenThen
 			assert(log("bytes") == "-")
 			assert(log("referrer") == "-")
 			assert(log("agent") == "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)")
+		}
+	}
+
+	describe("Testing access log: IPv6 ...")
+	{
+		val log = this.parser.parseLog(ApacheTopSampleLog.data(3))
+		it("the result should not be an empty map")
+		{
+			assert(!log.isEmpty)
+		}
+		it("the individual fields should be right")
+		{
+			assert(log("ip") == "2001:0db8:85a3:0000:0000:8a2e:0370:7334")
+			assert(log("client") == "-")
+			assert(log("user") == "-")
+			assert(log("timestamp") == "[23/Feb/2014:03:21:59 -0700]")
+			assert(log("request") == "GET /blog/post/java/how-load-multiple-spring-context-files-standalone/ HTTP/1.0")
+			assert(log("status") == "301")
+			assert(log("bytes") == "-")
+			assert(log("referrer") == "-")
+			assert(log("agent") == "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)")
+		}
+	}
+
+	describe("Testing access log: invalid format ...")
+	{
+		val log = this.parser.parseLog("Error")
+		it("the result should be an empty map")
+		{
+			assert(log.isEmpty)
 		}
 	}
 }
