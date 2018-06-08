@@ -6,6 +6,11 @@
 - [SBT](https://www.scala-sbt.org/download.html)
 - [Docker](https://www.docker.com/get-docker) (optional)
 
+## Instalation
+```bash
+git clone https://github.com/rizkyario/apache-top.git && cd apache-top
+```
+
 ## Usage
 ```bash
 sbt compile
