@@ -5,6 +5,7 @@
 - [Scala 2.12.6](https://www.scala-lang.org/download/)
 - [SBT](https://www.scala-sbt.org/download.html)
 - [Docker](https://www.docker.com/get-docker) (optional)
+
 ## Usage
 ```bash
 sbt compile
