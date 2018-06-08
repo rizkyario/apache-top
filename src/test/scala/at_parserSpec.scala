@@ -1,14 +1,12 @@
 package com.rizkyario.apache_top
 
 import org.scalatest.FunSpec
-import org.scalatest.BeforeAndAfter
-import org.scalatest.GivenWhenThen
 
-class ApacheTopParserSpec extends FunSpec with BeforeAndAfter with GivenWhenThen
+class ApacheTopParserSpec extends FunSpec
 {
 	val parser = new ApacheTopParser
 
-	describe ("ApacheTopParser ParseLog: ...")
+	describe ("ApacheTopParser ParseLog")
 	{
 		it ("should parse all value of valid log")
 		{

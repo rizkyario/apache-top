@@ -14,5 +14,7 @@ sbt "run apache.log"
 ## Unit Testing
 ```
 sbt test
+sbt "testOnly *ApacheTopPrinterSpec"
+sbt "testOnly *ApacheTopParserSpec"
 sbt "testOnly *ApacheTopParserSpec -- -z format"
 ```

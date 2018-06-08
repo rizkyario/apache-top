@@ -1,5 +1,7 @@
 package com.rizkyario.apache_top
 
+import scala.io.Source
+
 object ApacheTopSampleLog
 {
 	val data = """
@@ -10,4 +12,9 @@ object ApacheTopSampleLog
 		66.249.70.10 - - [23/Feb/2014:03:21:59 -0700]"
 		2001:0db8:85a3:0000:0000:8a2e:0370:7334 - - - "GET /blog/post/java/how-load-multiple-spring-context-files-standalone/ HTTP/1.0" 301 - "-" "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)"
 		""".split("\n").filter(_ != "")
+
+	val filename = "apache.log"
+	val parser = new ApacheTopParser
+	val logs = (for (line <- Source.fromFile(filename).getLines if line.length != 0)
+				yield(parser.parseLog(line))).toList
 }

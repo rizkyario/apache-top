@@ -9,6 +9,7 @@ class ApacheTopPrinter(filename: String, var logs: List[Map[String, String]])
 
 	def selectDistinct(key: String, logs: List[LogType] = logs): List[String] = (for (log <- logs) yield (log(key))).distinct
 
+	def printFilename 		(filename: String = filename): String = filename
 	def printFileSize 		(filename: String = filename): String = ApacheTopPrinter.toByteText(new File(this.filename).length)
 	def printReqSize		(logs: List[LogType] = logs): String = ApacheTopPrinter.toByteText(logs.foldLeft(0){(total, log)=>{total + log("bytes").toInt}})
 	def printTotalRequests	(logs: List[LogType] = logs): String = ApacheTopPrinter.toMetric(logs.length)
@@ -85,28 +86,28 @@ object ApacheTopPrinter
 			f"${bytes.toFloat/1000000000}%-6.2f GiB"
 		else if (bytes >= 1000000)
 			f"${bytes.toFloat/1000000   }%-6.2f MiB"
-		else
+		else if (bytes > 1000)
 			f"${bytes.toFloat/1000      }%-6.2f KiB"
+		else
+			f"${bytes			        }%-6d   B"
 	}
 
 	def toMetric(value: Long): String =
 	{
 		if (value >= 1000000000)
-			f"${value.toFloat/1000000000}%-6.2fG"
+			f"${value.toFloat/1000000000}%-6.2f G"
 		else if (value >= 1000000)
-			f"${value.toFloat/1000000   }%-6.2fM"
+			f"${value.toFloat/1000000   }%-6.2f M"
 		else if (value >= 1000)
-			f"${value.toFloat/1000      }%-6.2fK"
+			f"${value.toFloat/1000      }%-6.2f K"
 		else
-			f"${value.toFloat/1         }%-6.0f"
+			f"${value.toFloat/1         }%-6.0f  "
 	}
 
-	def printProcentBar(value: Int, total: Int, length: Int): String =
+	def printProcentBar(value: Int, max: Int, length: Int): String =
 	{
-		"|" * (value.toFloat / total.toFloat * length).toInt
+		"|" * (value.toFloat / max.toFloat * length).toInt
 	}
-
-
 
 	def clearScreen = print("\u001b[H\u001b[J")
 }
