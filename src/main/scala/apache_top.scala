@@ -24,7 +24,7 @@ object apache_top
 				fileSize = nfileSize
 				ApacheTopPrinter clearScreen
 				val logs = (for (line <- Source.fromFile(filename).getLines if line.length != 0)
-							yield(parser.parseLog(line))).toList
+							yield(parser.parseLog(line))).toList.filter(log => !log.isEmpty)
 				val printer = new ApacheTopPrinter(filename, logs)
 				printer.printSummaryLog()
 				printer.printVisitorLog(20)

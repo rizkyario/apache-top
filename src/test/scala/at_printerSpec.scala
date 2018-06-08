@@ -8,7 +8,7 @@ class ApacheTopPrinterSpec extends FunSpec
 	{
 		it ("should print correct summary of logs")
 		{
-			val printer = new ApacheTopPrinter(ApacheTopSampleLog.filename, ApacheTopSampleLog.logs)
+			val printer = new ApacheTopPrinter(ApacheTopSampleLog.filename, ApacheTopSampleLog.logs())
 			assert(printer.printFilename() 		== ApacheTopSampleLog.filenameColor)
 			assert(printer.printFileSize() 		== "8.23   KiB")
 			assert(printer.printReqSize() 		== "113.86 KiB")
@@ -21,11 +21,11 @@ class ApacheTopPrinterSpec extends FunSpec
 			assert(printer.printReq404s() 		== "2       ")
 			assert(printer.getVisitorLogs().length 	== 6)
 			assert(printer.getRequestLogs().length 	== 13)
-			assert(printer.getRequestLogs(ApacheTopSampleLog.logs.filter((log)=>(log("status").toInt == 404))).length == 2)
+			assert(printer.getRequestLogs(ApacheTopSampleLog.logs().filter((log)=>(log("status").toInt == 404))).length == 2)
 		}
 		it ("should print correct summary of one log")
 		{
-			val logs = ApacheTopSampleLog.logs.take(1)
+			val logs = ApacheTopSampleLog.logs().take(1)
 			val printer = new ApacheTopPrinter(ApacheTopSampleLog.filename, logs)
 			assert(printer.printFilename() 		== ApacheTopSampleLog.filenameColor)
 			assert(printer.printFileSize() 		== "8.23   KiB")
@@ -43,7 +43,7 @@ class ApacheTopPrinterSpec extends FunSpec
 		}
 		it ("should print correct summary of two logs")
 		{
-			val logs = ApacheTopSampleLog.logs.take(2)
+			val logs = ApacheTopSampleLog.logs().take(2)
 			val printer = new ApacheTopPrinter(ApacheTopSampleLog.filename, logs)
 			assert(printer.printFilename() 		== ApacheTopSampleLog.filenameColor)
 			assert(printer.printFileSize() 		== "8.23   KiB")
@@ -61,7 +61,7 @@ class ApacheTopPrinterSpec extends FunSpec
 		}
 		it ("should print correct summary of zero logs")
 		{
-			val logs = ApacheTopSampleLog.logs.take(0)
+			val logs = ApacheTopSampleLog.logs().take(0)
 			val printer = new ApacheTopPrinter(ApacheTopSampleLog.filename, logs)
 			assert(printer.printFilename() 		== ApacheTopSampleLog.filenameColor)
 			assert(printer.printFileSize() 		== "8.23   KiB")
@@ -77,9 +77,18 @@ class ApacheTopPrinterSpec extends FunSpec
 			assert(printer.getRequestLogs().length 	== 0)
 			assert(printer.getRequestLogs(logs.filter((log)=>(log("status").toInt == 404))).length == 0)
 		}
-		it ("should handle invalid filename")
+		it ("should handle invalid file")
 		{
-			val printer = new ApacheTopPrinter("Error", ApacheTopSampleLog.logs.take(0))
+			val printer = new ApacheTopPrinter("build.sbt", ApacheTopSampleLog.logs("build.sbt").take(0))
+			printer.printSummaryLog()
+			printer.printVisitorLog(20)
+			printer.printRequestLog(20)
+			printer.print404RequestLog(20)
+			assert(printer.printFileSize() 		== "171      B")
+		}
+		it ("should handle non-existent file")
+		{
+			val printer = new ApacheTopPrinter("Error", ApacheTopSampleLog.logs("Error").take(0))
 			assert(printer.printFilename() 		== "")
 			assert(printer.printFileSize() 		== "0        B")
 		}
