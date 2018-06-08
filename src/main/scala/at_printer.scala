@@ -9,7 +9,7 @@ class ApacheTopPrinter(filename: String, var logs: List[Map[String, String]])
 
 	def selectDistinct(key: String, logs: List[LogType] = logs): List[String] = (for (log <- logs) yield (log(key))).distinct
 
-	def printFilename 		(filename: String = filename): String = filename
+	def printFilename 		(filename: String = filename): String = f"${Console.YELLOW}$filename${Console.RESET}"
 	def printFileSize 		(filename: String = filename): String = ApacheTopPrinter.toByteText(new File(this.filename).length)
 	def printReqSize		(logs: List[LogType] = logs): String = ApacheTopPrinter.toByteText(logs.foldLeft(0){(total, log)=>{total + log("bytes").toInt}})
 	def printTotalRequests	(logs: List[LogType] = logs): String = ApacheTopPrinter.toMetric(logs.length)
@@ -20,10 +20,16 @@ class ApacheTopPrinter(filename: String, var logs: List[Map[String, String]])
 	def printRequests		(logs: List[LogType] = logs): String = ApacheTopPrinter.toMetric(selectDistinct("request").length)
 	def printReq404s		(logs: List[LogType] = logs): String = ApacheTopPrinter.toMetric((for (log <- logs; if log("status").toInt == 404 ) yield {log("status") -> log("request")}).distinct.length)
 
+	def printHeader (header: String) =
+	{
+		println(f"${Console.WHITE_B}${Console.BLACK}")
+		println(f" ** ${header} ** ")
+		println(f"${Console.RESET}")
+	}
 	def printSummaryLog() =
 	{
-		println("\n** APACHE TOP Overall Analysed Requests **\n")
-		println(f"Total Request   ${printTotalRequests() }  Unique Visitors  ${printVisitors()}        Referrers   ${printReferrers()}  Log Source  $filename")
+		printHeader("APACHE TOP Overall Analysed Requests")
+		println(f"Total Request   ${printTotalRequests() }  Unique Visitors  ${printVisitors()}        Referrers   ${printReferrers()}  Log Source  ${printFilename()}")
 		println(f"Valid Request   ${printValidRequests() }  Unique Files     ${printRequests()}        Unique 404  ${printReq404s()  }  Log Size    ${printFileSize()}")
 		println(f"Failed Request  ${printFailedRequests()}  Bandwidth        ${printReqSize() }")
 	}
@@ -49,7 +55,7 @@ class ApacheTopPrinter(filename: String, var logs: List[Map[String, String]])
 				}
 			}
 
-		println(f"\n** 1. Unique Visitor per Day (${if (limit > gLogs.length) gLogs.length else limit}/${gLogs.length}) **\n")
+		printHeader(f"1. Unique Visitor per Day (${if (limit > gLogs.length) gLogs.length else limit}/${gLogs.length})")
 		for ((log, i) <- gLogs.zipWithIndex)
 		{
 			if (i < limit)
@@ -68,7 +74,7 @@ class ApacheTopPrinter(filename: String, var logs: List[Map[String, String]])
 				gLogs
 			)).toSeq.sortWith(_._2 > _._2)
 
-		println(f"\n** 2. Requested Files (URLs) (${if (limit > gLogs.length) gLogs.length else limit}/${gLogs.length}) **\n")
+		printHeader(f"2. Requested Files (URLs) (${if (limit > gLogs.length) gLogs.length else limit}/${gLogs.length})")
 		for ((log, i) <- gLogs.zipWithIndex)
 		{
 			val (requestType, uri, httpVersion) = ApacheTopParser.parseRequestField(log._1)
@@ -88,7 +94,7 @@ class ApacheTopPrinter(filename: String, var logs: List[Map[String, String]])
 				gLogs
 			)).toSeq.sortWith(_._2 > _._2)
 
-		println(f"\n** 3. 404 Requested Files (URLs) (${if (limit > gLogs.length) gLogs.length else limit}/${gLogs.length}) **\n")
+		printHeader(f"3. 404 Requested Files (URLs) (${if (limit > gLogs.length) gLogs.length else limit}/${gLogs.length})")
 		for ((log, i) <- gLogs.zipWithIndex)
 		{
 			val (requestType, uri, httpVersion) = ApacheTopParser.parseRequestField(log._1)
