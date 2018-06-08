@@ -3,3 +3,4 @@
 !apache.log
 project/*
 target/*
+!assembly.sbt
