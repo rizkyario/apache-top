@@ -1,10 +1,11 @@
 # Apache Top
-![apache-top](https://user-images.githubusercontent.com/6814254/41112936-a3837354-6a80-11e8-92c9-4803eba1c293.gif)
+![apache-top](https://user-images.githubusercontent.com/6814254/41160360-bb5dabb6-6b2f-11e8-8272-ea7a93dc9e7c.gif)
 
 ## Requirements
 - [Scala 2.12.6](https://www.scala-lang.org/download/)
 - [SBT](https://www.scala-sbt.org/download.html)
 - [Docker](https://www.docker.com/get-docker) (optional)
+
 ## Usage
 ```bash
 sbt compile
