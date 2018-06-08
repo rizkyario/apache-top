@@ -9,7 +9,7 @@ class ApacheTopPrinter(filename: String, var logs: List[Map[String, String]])
 
 	def selectDistinct(key: String, logs: List[LogType] = logs): List[String] = (for (log <- logs) yield (log(key))).distinct
 
-	def printFilename 		(filename: String = filename): String = f"${Console.YELLOW}$filename${Console.RESET}"
+	def printFilename 		(filename: String = filename): String = if (new File(this.filename).length > 0) f"${Console.YELLOW}$filename${Console.RESET}" else ""
 	def printFileSize 		(filename: String = filename): String = ApacheTopPrinter.toByteText(new File(this.filename).length)
 	def printReqSize		(logs: List[LogType] = logs): String = ApacheTopPrinter.toByteText(logs.foldLeft(0){(total, log)=>{total + log("bytes").toInt}})
 	def printTotalRequests	(logs: List[LogType] = logs): String = ApacheTopPrinter.toMetric(logs.length)
