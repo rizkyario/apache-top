@@ -68,7 +68,27 @@ class ApacheTopPrinter(filename: String, var logs: List[Map[String, String]])
 				gLogs
 			)).toSeq.sortWith(_._2 > _._2)
 
-		println(f"\n** 2. Top 10 Requested Files (URLs) (${if (limit > gLogs.length) gLogs.length else limit}/${gLogs.length}) **\n")
+		println(f"\n** 2. Requested Files (URLs) (${if (limit > gLogs.length) gLogs.length else limit}/${gLogs.length}) **\n")
+		for ((log, i) <- gLogs.zipWithIndex)
+		{
+			val (requestType, uri, httpVersion) = ApacheTopParser.parseRequestField(log._1)
+			if (i < limit)
+				println(f"${log._2}%-4d  ${printReqSize(log._3)}  ${requestType}%-6s ${httpVersion}%-10s  ${uri}")
+		}
+	}
+
+	def print404RequestLog(limit: Int) =
+	{
+		val gLogs = (
+			for((key, gLogs) <- logs.filter((log)=>(log("status").toInt == 404)).groupBy(_.get("request")))
+			yield
+			(
+				key.get,
+				gLogs.length,
+				gLogs
+			)).toSeq.sortWith(_._2 > _._2)
+
+		println(f"\n** 3. 404 Requested Files (URLs) (${if (limit > gLogs.length) gLogs.length else limit}/${gLogs.length}) **\n")
 		for ((log, i) <- gLogs.zipWithIndex)
 		{
 			val (requestType, uri, httpVersion) = ApacheTopParser.parseRequestField(log._1)
