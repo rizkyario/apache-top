@@ -3,9 +3,12 @@ package com.rizkyario.apache_top
 import java.text.SimpleDateFormat
 import scala.collection.mutable.LinkedHashMap
 
-class ApacheTopParser(rules: LinkedHashMap[String, String])
+class ApacheTopParser()
 {
-	def this() = this (LinkedHashMap(
+	/*
+	** Set default rules to `combined` LogFormat
+	*/
+	var rules: LinkedHashMap[String, String] = LinkedHashMap(
 		("ip", "(\\S+)"),
 		("client", "(\\S+)"),
 		("user", "(\\S+)"),
@@ -15,26 +18,27 @@ class ApacheTopParser(rules: LinkedHashMap[String, String])
 		("bytes", "(\\S+)"),
 		("referrer", "\"(.*?)\""),
 		("agent", "\"(.*?)\"")
-	))
+	)
 
+	/*
+	** ParseLog based on $rules
+	** Return all value in Map[String, String] if match with $rules
+	** Else return empty Map
+	*/
 	def parseLog(line: String): Map[String, String] =
 	{
 		val regexRule = this.rules.values.reduce((a, b) => a + " " + b)
 		val re = s"$regexRule".r
-		val log = (
-			for
+		val log =
+			(for
 			{
 				m <- re.findAllIn(line).matchData
 				(e, i) <- m.subgroups.zipWithIndex
 			}
-			yield
-			{
-				rules.keys.toSeq(i) -> e
-			}).toMap
+			yield (rules.keys.toSeq(i) -> e)).toMap
+
 		if (log.exists(_._1 == "timestamp"))
-		{
 			log + ("date" -> ApacheTopParser.parseDate(log("timestamp")))
-		}
 		else
 			log
 	}
@@ -42,6 +46,11 @@ class ApacheTopParser(rules: LinkedHashMap[String, String])
 
 object ApacheTopParser
 {
+	/*
+	** Parse date string from logs to sortable date format
+	** Return 'yyyy/MM/dd' when parameter is valid
+	** Else return empty string
+	*/
 	def parseDate(timestamp: String): String =
 	{
 		try
@@ -55,6 +64,11 @@ object ApacheTopParser
 		}
 	}
 
+	/*
+	** Parse request string from logs to Tuple of requestType, uri, httpVersion
+	** Return (requestType, uri, httpVersion) when parameter is valid
+	** Else return empty string
+	*/
 	def parseRequestField(request: String): Tuple3[String, String, String] =
 	{
         val arr = request.split(" ")
