@@ -10,6 +10,13 @@
 sbt compile
 sbt "run apache.log"
 ```
+### Using log-generator
+```
+// Run log-generator
+docker-compose -f ./log-generator/docker-compose.yml up -d; sbt "run log-generator/access.log"
+// Stop log-generator
+docker-compose -f ./log-generator/docker-compose.yml down
+```
 
 ## Deploy
 ```

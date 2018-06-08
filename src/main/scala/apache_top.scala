@@ -29,6 +29,7 @@ object apache_top
 				printer.printSummaryLog()
 				printer.printVisitorLog(20)
 				printer.printRequestLog(20)
+				printer.print404RequestLog(20)
 			}
 			Thread.sleep(delay)
 		}
