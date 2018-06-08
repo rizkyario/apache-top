@@ -9,6 +9,9 @@ class ApacheTopPrinter(filename: String, var logs: List[Map[String, String]])
 
 	def selectDistinct(key: String, logs: List[LogType] = logs): List[String] = (for (log <- logs) yield (log(key))).distinct
 
+	/*
+	** Return formatted values of $logs
+	*/
 	def printFilename 		(filename: String = filename): String = if (new File(this.filename).length > 0) f"${Console.YELLOW}$filename${Console.RESET}" else ""
 	def printFileSize 		(filename: String = filename): String = ApacheTopPrinter.toByteText(new File(this.filename).length)
 	def printReqSize		(logs: List[LogType] = logs): String = ApacheTopPrinter.toByteText(logs.foldLeft(0){(total, log)=>{total + log("bytes").toInt}})
@@ -20,6 +23,9 @@ class ApacheTopPrinter(filename: String, var logs: List[Map[String, String]])
 	def printRequests		(logs: List[LogType] = logs): String = ApacheTopPrinter.toMetric(selectDistinct("request").length)
 	def printReq404s		(logs: List[LogType] = logs): String = ApacheTopPrinter.toMetric((for (log <- logs; if log("status").toInt == 404 ) yield {log("status") -> log("request")}).distinct.length)
 
+	/*
+	** Return List of unique visitor (based on IP Address) logs grouped by date
+	*/
 	def getVisitorLogs() =
 		(for ((key, gLogs) <- logs.groupBy(_.get("date")))
 		yield
@@ -29,6 +35,10 @@ class ApacheTopPrinter(filename: String, var logs: List[Map[String, String]])
 			gLogs
 		)}).toSeq.sortWith(_._1 > _._1)
 
+	/*
+	** Return List of logs grouped by request string and sort based on sum item
+	** Optional logs is provided to accomodate filtering, default value is $logs
+	*/
 	def getRequestLogs(logs: List[Map[String, String]] = logs) =
 		(for((key, gLogs) <- logs.groupBy(_.get("request")))
 		yield
@@ -38,12 +48,16 @@ class ApacheTopPrinter(filename: String, var logs: List[Map[String, String]])
 			gLogs
 		)).toSeq.sortWith(_._2 > _._2)
 	
+	/*
+	** Print formatted values of $logs to standard output
+	*/
 	def printHeader (header: String) =
 	{
 		println(f"${Console.WHITE_B}${Console.BLACK}")
 		println(f" ** ${header} ** ")
 		println(f"${Console.RESET}")
 	}
+
 	def printSummaryLog() =
 	{
 		printHeader("APACHE TOP Overall Analysed Requests")
@@ -98,6 +112,9 @@ class ApacheTopPrinter(filename: String, var logs: List[Map[String, String]])
 
 object ApacheTopPrinter
 {
+	/*
+	** Return formatted value in B, KiB, MiB, and GiB
+	*/
 	def toByteText(bytes: Long): String =
 	{
 		if (bytes >= 1000000000)
@@ -110,6 +127,9 @@ object ApacheTopPrinter
 			f"${bytes			        }%-6d   B"
 	}
 
+	/*
+	** Return formatted value in B, K, M, and G
+	*/
 	def toMetric(value: Long): String =
 	{
 		var result = ""
@@ -124,6 +144,9 @@ object ApacheTopPrinter
 		f"${result}%-8s"
 	}
 
+	/*
+	** Return Bar Chart with the width of $value relative to $max with the size of $length
+	*/
 	def printProcentBar(value: Int, max: Int, length: Int): String =
 	{
 		"|" * (value.toFloat / max.toFloat * length).toInt
