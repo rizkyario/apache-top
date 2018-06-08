@@ -8,15 +8,11 @@ class ApacheTopParserSpec extends FunSpec with BeforeAndAfter with GivenWhenThen
 {
 	val parser = new ApacheTopParser
 
-	describe ("Testing parseLog: Complete Log...")
+	describe ("ApacheTopParser ParseLog: ...")
 	{
-		val log = this.parser.parseLog(ApacheTopSampleLog.data(0))
-		it ("the result should not be an empty map")
+		it ("should parse all value of valid log")
 		{
-			assert(!log.isEmpty)
-		}
-		it ("the individual fields should be right")
-		{
+			val log = this.parser.parseLog(ApacheTopSampleLog.data(0))
 			assert(log("ip") == "124.30.9.161")
 			assert(log("client") == "-")
 			assert(log("user") == "-")
@@ -27,17 +23,9 @@ class ApacheTopParserSpec extends FunSpec with BeforeAndAfter with GivenWhenThen
 			assert(log("referrer") == "http://www.google.co.in/search?hl=en&client=firefox-a&rlz=1R1GGGL_en___IN337&hs=F0W&q=reading+data+from+file+in+java&btnG=Search&meta=&aq=0&oq=reading+data+")
 			assert(log("agent") == "Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.9.0.11) Gecko/2009060215 Firefox/3.0.11 GTB5")
 		}
-	}
-
-	describe ("Testing parseLog: No Referrer ...")
-	{
-		val log = this.parser.parseLog(ApacheTopSampleLog.data(1))
-		it ("the result should not be an empty map")
+		it ("should parse all value of log without referrer")
 		{
-			assert(!log.isEmpty)
-		}
-		it ("the individual fields should be right")
-		{
+			val log = this.parser.parseLog(ApacheTopSampleLog.data(1))
 			assert(log("ip") == "89.166.165.223")
 			assert(log("client") == "-")
 			assert(log("user") == "-")
@@ -48,17 +36,9 @@ class ApacheTopParserSpec extends FunSpec with BeforeAndAfter with GivenWhenThen
 			assert(log("referrer") == "-")
 			assert(log("agent") == "Mozilla/5.0 (Windows; U; Windows NT 5.1; de; rv:1.9.0.11) Gecko/2009060215 Firefox/3.0.11")
 		}
-	}
-
-	describe ("Testing parseLog: No data was returned [ bytes == - ] ...")
-	{
-		val log = this.parser.parseLog(ApacheTopSampleLog.data(2))
-		it ("the result should not be an empty map")
+		it ("should parse all value of log with no returned data [ bytes == - ]")
 		{
-			assert(!log.isEmpty)
-		}
-		it ("the individual fields should be right")
-		{
+			val log = this.parser.parseLog(ApacheTopSampleLog.data(2))
 			assert(log("ip") == "66.249.70.10")
 			assert(log("client") == "-")
 			assert(log("user") == "-")
@@ -69,17 +49,9 @@ class ApacheTopParserSpec extends FunSpec with BeforeAndAfter with GivenWhenThen
 			assert(log("referrer") == "-")
 			assert(log("agent") == "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)")
 		}
-	}
-
-	describe ("Testing parseLog: log contains IPv6 ...")
-	{
-		val log = this.parser.parseLog(ApacheTopSampleLog.data(3))
-		it ("the result should not be an empty map")
+		it ("should parse all value of log containing IPv6 ")
 		{
-			assert(!log.isEmpty)
-		}
-		it ("the individual fields should be right")
-		{
+			val log = this.parser.parseLog(ApacheTopSampleLog.data(3))
 			assert(log("ip") == "2001:0db8:85a3:0000:0000:8a2e:0370:7334")
 			assert(log("client") == "-")
 			assert(log("user") == "-")
@@ -90,59 +62,71 @@ class ApacheTopParserSpec extends FunSpec with BeforeAndAfter with GivenWhenThen
 			assert(log("referrer") == "-")
 			assert(log("agent") == "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)")
 		}
-	}
-
-	describe ("Testing parseLog: Incomplete Log ...")
-	{
-		val log = this.parser.parseLog(ApacheTopSampleLog.data(5))
-		it ("the result should be an empty map")
+		it ("should not parse incomplete log")
 		{
+			val log = this.parser.parseLog(ApacheTopSampleLog.data(4))
+			assert(log.isEmpty)
+		}
+		it ("should not parse log file without timestamp")
+		{
+			val log = this.parser.parseLog(ApacheTopSampleLog.data(5))
+			assert(log.isEmpty)
+		}
+		it ("should not parse invalid format log")
+		{
+			val log = this.parser.parseLog("Error")
+			assert(log.isEmpty)
+		}
+		it ("should not parse empty log")
+		{
+			val log = this.parser.parseLog("")
 			assert(log.isEmpty)
 		}
 	}
 
-	describe ("Testing parseLog: No Timestamp ...")
+	describe ("ApacheTopParser ParseDate")
 	{
-		val log = this.parser.parseLog(ApacheTopSampleLog.data(6))
-		it ("the result should be an empty map")
+		it ("should return 'yyyy/MM/dd' when parameter is valid")
 		{
-			assert(log.isEmpty)
-		}
-	}
-
-	describe ("Testing parseLog: Invalid Format ...")
-	{
-		val log = this.parser.parseLog("Error")
-		it ("the result should be an empty map")
-		{
-			assert(log.isEmpty)
-		}
-	}
-
-	describe ("Testing parseLog: Empty Line ...")
-	{
-		val log = this.parser.parseLog("")
-		it ("the result should be an empty map")
-		{
-			assert(log.isEmpty)
-		}
-	}
-
-	describe ("Testing parseDate: Valid Format ...")
-	{
-		val date = ApacheTopParser.parseDate("[21/Jul/2009:02:48:12 -0700]")
-		it ("the result should be correct")
-		{
+			val date = ApacheTopParser.parseDate("[21/Jul/2009:02:48:12 -0700]")
 			assert(date == "2009/07/21")
 		}
+		it ("should return empty string when parameter is invalid")
+		{
+			val date = ApacheTopParser.parseDate("21/Jul/2009:02:48:12 -0700")
+			assert(date.isEmpty)
+		}
 	}
 
-	describe ("Testing parseDate: Invalid Format ...")
+	describe ("ApacheTopParser ParseRequestField")
 	{
-		val date = ApacheTopParser.parseDate("21/Jul/2009:02:48:12 -0700")
-		it ("the result should be empty")
+		it ("should return (requestType, uri, httpVersion) when parameter is valid")
 		{
-			assert(date.isEmpty)
+			val (requestType, uri, httpVersion) = ApacheTopParser.parseRequestField("GET /the-uri-here HTTP/1.1")
+			assert(requestType == "GET")
+			assert(uri == "/the-uri-here")
+			assert(httpVersion == "HTTP/1.1")
+		}
+		it ("should return empty strings when parameter is empty")
+		{
+			val (requestType, uri, httpVersion) = ApacheTopParser.parseRequestField("")
+			assert(requestType.isEmpty)
+			assert(uri.isEmpty)
+			assert(httpVersion.isEmpty)
+		}
+		it ("should return empty strings when parameter is incompleted")
+		{
+			val (requestType, uri, httpVersion) = ApacheTopParser.parseRequestField("GET /the-uri-here")
+			assert(requestType.isEmpty)
+			assert(uri.isEmpty)
+			assert(httpVersion.isEmpty)
+		}
+		it ("should return empty strings when parameter is overloaded")
+		{
+			val (requestType, uri, httpVersion) = ApacheTopParser.parseRequestField("GET /the-uri-here HTTP/1.1 Extra")
+			assert(requestType.isEmpty)
+			assert(uri.isEmpty)
+			assert(httpVersion.isEmpty)
 		}
 	}
 }
