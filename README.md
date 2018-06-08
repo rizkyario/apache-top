@@ -11,6 +11,12 @@ sbt compile
 sbt "run apache.log"
 ```
 
+## Deploy
+```
+sbt assembly
+scala target/scala-2.12/apache-top-assembly-1.0.jar apache.log
+```
+
 ## Unit Testing
 ```
 sbt test
