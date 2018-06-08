@@ -12,8 +12,6 @@ class ApacheTopPrinter(filename: String, var logs: List[Map[String, String]])
 	/*
 	** Return formatted values of $logs
 	*/
-	def printFilename 		(filename: String = filename): String = if (new File(this.filename).length > 0) f"${Console.YELLOW}$filename${Console.RESET}" else ""
-	def printFileSize 		(filename: String = filename): String = ApacheTopPrinter.toByteText(new File(this.filename).length)
 	def printReqSize		(logs: List[LogType] = logs): String = ApacheTopPrinter.toByteText(logs.foldLeft(0){(total, log)=>{total + log("bytes").toInt}})
 	def printTotalRequests	(logs: List[LogType] = logs): String = ApacheTopPrinter.toMetric(logs.length)
 	def printFailedRequests (logs: List[LogType] = logs): String = ApacheTopPrinter.toMetric(logs.filter((log)=>(log("status").toInt >= 400)).size)
@@ -22,6 +20,31 @@ class ApacheTopPrinter(filename: String, var logs: List[Map[String, String]])
 	def printReferrers		(logs: List[LogType] = logs): String = ApacheTopPrinter.toMetric(selectDistinct("referrer").length)
 	def printRequests		(logs: List[LogType] = logs): String = ApacheTopPrinter.toMetric(selectDistinct("request").length)
 	def printReq404s		(logs: List[LogType] = logs): String = ApacheTopPrinter.toMetric((for (log <- logs; if log("status").toInt == 404 ) yield {log("status") -> log("request")}).distinct.length)
+
+	def printFilename (filename: String = filename): String = 
+	{
+		try
+		{
+			val file = new File(this.filename)
+			if (file.length > 0) f"${Console.YELLOW}$filename${Console.RESET}" else ""
+		}
+		catch
+		{
+			case e: Exception => ""
+		}
+	}
+	def printFileSize (filename: String = filename): String =
+	{
+		try
+		{
+			val file = new File(this.filename)
+			ApacheTopPrinter.toByteText(file.length)
+		}
+		catch
+		{
+			case e: Exception => ApacheTopPrinter.toByteText(0)
+		}
+	}
 
 	/*
 	** Return List of unique visitor (based on IP Address) logs grouped by date
