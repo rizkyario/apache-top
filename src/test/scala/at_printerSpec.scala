@@ -85,9 +85,9 @@ class ApacheTopPrinterSpec extends FunSpec
 	{
 		it ("should print correct value")
 		{
-			assert(ApacheTopPrinter.toMetric(1340000000) 	== "1.34   G")
-			assert(ApacheTopPrinter.toMetric(1340000) 		== "1.34   M")
-			assert(ApacheTopPrinter.toMetric(1340) 			== "1.34   K")
+			assert(ApacheTopPrinter.toMetric(1340000000) 	== "1.34G   ")
+			assert(ApacheTopPrinter.toMetric(1340000) 		== "1.34M   ")
+			assert(ApacheTopPrinter.toMetric(1340) 			== "1.34K   ")
 			assert(ApacheTopPrinter.toMetric(2)				== "2       ")
 			assert(ApacheTopPrinter.toMetric(1)				== "1       ")
 			assert(ApacheTopPrinter.toMetric(0)				== "0       ")

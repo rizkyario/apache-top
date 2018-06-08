@@ -94,14 +94,16 @@ object ApacheTopPrinter
 
 	def toMetric(value: Long): String =
 	{
+		var result = ""
 		if (value >= 1000000000)
-			f"${value.toFloat/1000000000}%-6.2f G"
+			result = f"${value.toFloat/1000000000}%.2fG"
 		else if (value >= 1000000)
-			f"${value.toFloat/1000000   }%-6.2f M"
+			result = f"${value.toFloat/1000000   }%.2fM"
 		else if (value >= 1000)
-			f"${value.toFloat/1000      }%-6.2f K"
+			result = f"${value.toFloat/1000      }%.2fK"
 		else
-			f"${value.toFloat/1         }%-6.0f  "
+			result = f"${value.toFloat/1         }%.0f"
+		f"${result}%-8s"
 	}
 
 	def printProcentBar(value: Int, max: Int, length: Int): String =
