@@ -20,6 +20,24 @@ class ApacheTopPrinter(filename: String, var logs: List[Map[String, String]])
 	def printRequests		(logs: List[LogType] = logs): String = ApacheTopPrinter.toMetric(selectDistinct("request").length)
 	def printReq404s		(logs: List[LogType] = logs): String = ApacheTopPrinter.toMetric((for (log <- logs; if log("status").toInt == 404 ) yield {log("status") -> log("request")}).distinct.length)
 
+	def getVisitorLogs() =
+		(for ((key, gLogs) <- logs.groupBy(_.get("date")))
+		yield
+		{(
+			key.get,
+			(for (log <- gLogs) yield (log("ip"))).distinct.length,
+			gLogs
+		)}).toSeq.sortWith(_._1 > _._1)
+
+	def getRequestLogs(logs: List[Map[String, String]] = logs) =
+		(for((key, gLogs) <- logs.groupBy(_.get("request")))
+		yield
+		(
+			key.get,
+			gLogs.length,
+			gLogs
+		)).toSeq.sortWith(_._2 > _._2)
+	
 	def printHeader (header: String) =
 	{
 		println(f"${Console.WHITE_B}${Console.BLACK}")
@@ -36,16 +54,9 @@ class ApacheTopPrinter(filename: String, var logs: List[Map[String, String]])
 
 	def printVisitorLog(limit: Int) =
 	{
-		val gLogs = (
-			for ((key, gLogs) <- logs.groupBy(_.get("date")))
-			yield
-			{(
-				key.get,
-				(for (log <- gLogs) yield (log("ip"))).distinct.length,
-				gLogs
-			)}).toSeq.sortWith(_._1 > _._1)
+		val gLogs = getVisitorLogs()
 		val max = gLogs.foldLeft(0)
-			{(total, logs) => 
+			{(total, logs) =>
 				{
 					val count = selectDistinct("ip", logs._3).length
 					if (total < count)
@@ -56,50 +67,31 @@ class ApacheTopPrinter(filename: String, var logs: List[Map[String, String]])
 			}
 
 		printHeader(f"1. Unique Visitor per Day (${if (limit > gLogs.length) gLogs.length else limit}/${gLogs.length})")
-		for ((log, i) <- gLogs.zipWithIndex)
-		{
-			if (i < limit)
-				println(f"${log._2}%-4d  ${printReqSize(log._3)}  ${log._1}  ${ApacheTopPrinter.printProcentBar(log._2, max, 30)}")
-		}
+		for ((log, i) <- gLogs.zipWithIndex if i < limit)
+			println(f"${log._2}%-4d  ${printReqSize(log._3)}  ${log._1}  ${ApacheTopPrinter.printProcentBar(log._2, max, 30)}")
 	}
 
 	def printRequestLog(limit: Int) =
 	{
-		val gLogs = (
-			for((key, gLogs) <- logs.groupBy(_.get("request")))
-			yield
-			(
-				key.get,
-				gLogs.length,
-				gLogs
-			)).toSeq.sortWith(_._2 > _._2)
+		val gLogs = getRequestLogs()
 
 		printHeader(f"2. Requested Files (URLs) (${if (limit > gLogs.length) gLogs.length else limit}/${gLogs.length})")
-		for ((log, i) <- gLogs.zipWithIndex)
+		for ((log, i) <- gLogs.zipWithIndex if i < limit)
 		{
 			val (requestType, uri, httpVersion) = ApacheTopParser.parseRequestField(log._1)
-			if (i < limit)
-				println(f"${log._2}%-4d  ${printReqSize(log._3)}  ${requestType}%-6s ${httpVersion}%-10s  ${uri}")
+			println(f"${log._2}%-4d  ${printReqSize(log._3)}  ${requestType}%-6s ${httpVersion}%-10s  ${uri}")
 		}
 	}
 
 	def print404RequestLog(limit: Int) =
 	{
-		val gLogs = (
-			for((key, gLogs) <- logs.filter((log)=>(log("status").toInt == 404)).groupBy(_.get("request")))
-			yield
-			(
-				key.get,
-				gLogs.length,
-				gLogs
-			)).toSeq.sortWith(_._2 > _._2)
+		val gLogs = getRequestLogs(logs.filter((log)=>(log("status").toInt == 404)))
 
 		printHeader(f"3. 404 Requested Files (URLs) (${if (limit > gLogs.length) gLogs.length else limit}/${gLogs.length})")
-		for ((log, i) <- gLogs.zipWithIndex)
+		for ((log, i) <- gLogs.zipWithIndex if i < limit)
 		{
 			val (requestType, uri, httpVersion) = ApacheTopParser.parseRequestField(log._1)
-			if (i < limit)
-				println(f"${log._2}%-4d  ${printReqSize(log._3)}  ${requestType}%-6s ${httpVersion}%-10s  ${uri}")
+			println(f"${log._2}%-4d  ${printReqSize(log._3)}  ${requestType}%-6s ${httpVersion}%-10s  ${uri}")
 		}
 	}
 }
