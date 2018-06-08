@@ -9,7 +9,7 @@ class ApacheTopPrinterSpec extends FunSpec
 		it ("should print correct summary of logs")
 		{
 			val printer = new ApacheTopPrinter(ApacheTopSampleLog.filename, ApacheTopSampleLog.logs)
-			assert(printer.printFilename() 		== ApacheTopSampleLog.filename)
+			assert(printer.printFilename() 		== ApacheTopSampleLog.filenameColor)
 			assert(printer.printFileSize() 		== "8.23   KiB")
 			assert(printer.printReqSize() 		== "113.86 KiB")
 			assert(printer.printTotalRequests() == "37      ")
@@ -19,11 +19,15 @@ class ApacheTopPrinterSpec extends FunSpec
 			assert(printer.printReferrers() 	== "5       ")
 			assert(printer.printRequests() 		== "13      ")
 			assert(printer.printReq404s() 		== "2       ")
+			assert(printer.getVisitorLogs().length 	== 6)
+			assert(printer.getRequestLogs().length 	== 13)
+			assert(printer.getRequestLogs(ApacheTopSampleLog.logs.filter((log)=>(log("status").toInt == 404))).length == 2)
 		}
 		it ("should print correct summary of one log")
 		{
-			val printer = new ApacheTopPrinter(ApacheTopSampleLog.filename, ApacheTopSampleLog.logs.take(1))
-			assert(printer.printFilename() 		== ApacheTopSampleLog.filename)
+			val logs = ApacheTopSampleLog.logs.take(1)
+			val printer = new ApacheTopPrinter(ApacheTopSampleLog.filename, logs)
+			assert(printer.printFilename() 		== ApacheTopSampleLog.filenameColor)
 			assert(printer.printFileSize() 		== "8.23   KiB")
 			assert(printer.printReqSize() 		== "1.61   KiB")
 			assert(printer.printTotalRequests() == "1       ")
@@ -33,11 +37,15 @@ class ApacheTopPrinterSpec extends FunSpec
 			assert(printer.printReferrers() 	== "1       ")
 			assert(printer.printRequests() 		== "1       ")
 			assert(printer.printReq404s() 		== "0       ")
+			assert(printer.getVisitorLogs().length 	== 1)
+			assert(printer.getRequestLogs().length 	== 1)
+			assert(printer.getRequestLogs(logs.filter((log)=>(log("status").toInt == 404))).length == 0)
 		}
 		it ("should print correct summary of two logs")
 		{
-			val printer = new ApacheTopPrinter(ApacheTopSampleLog.filename, ApacheTopSampleLog.logs.take(2))
-			assert(printer.printFilename() 		== ApacheTopSampleLog.filename)
+			val logs = ApacheTopSampleLog.logs.take(2)
+			val printer = new ApacheTopPrinter(ApacheTopSampleLog.filename, logs)
+			assert(printer.printFilename() 		== ApacheTopSampleLog.filenameColor)
 			assert(printer.printFileSize() 		== "8.23   KiB")
 			assert(printer.printReqSize() 		== "2.58   KiB")
 			assert(printer.printTotalRequests() == "2       ")
@@ -47,11 +55,15 @@ class ApacheTopPrinterSpec extends FunSpec
 			assert(printer.printReferrers() 	== "2       ")
 			assert(printer.printRequests() 		== "2       ")
 			assert(printer.printReq404s() 		== "1       ")
+			assert(printer.getVisitorLogs().length 	== 1)
+			assert(printer.getRequestLogs().length 	== 2)
+			assert(printer.getRequestLogs(logs.filter((log)=>(log("status").toInt == 404))).length == 1)
 		}
 		it ("should print correct summary of zero logs")
 		{
-			val printer = new ApacheTopPrinter(ApacheTopSampleLog.filename, ApacheTopSampleLog.logs.take(0))
-			assert(printer.printFilename() 		== ApacheTopSampleLog.filename)
+			val logs = ApacheTopSampleLog.logs.take(0)
+			val printer = new ApacheTopPrinter(ApacheTopSampleLog.filename, logs)
+			assert(printer.printFilename() 		== ApacheTopSampleLog.filenameColor)
 			assert(printer.printFileSize() 		== "8.23   KiB")
 			assert(printer.printReqSize() 		== "0        B")
 			assert(printer.printTotalRequests() == "0       ")
@@ -61,11 +73,14 @@ class ApacheTopPrinterSpec extends FunSpec
 			assert(printer.printReferrers() 	== "0       ")
 			assert(printer.printRequests() 		== "0       ")
 			assert(printer.printReq404s() 		== "0       ")
+			assert(printer.getVisitorLogs().length 	== 0)
+			assert(printer.getRequestLogs().length 	== 0)
+			assert(printer.getRequestLogs(logs.filter((log)=>(log("status").toInt == 404))).length == 0)
 		}
 		it ("should handle invalid filename")
 		{
 			val printer = new ApacheTopPrinter("Error", ApacheTopSampleLog.logs.take(0))
-			assert(printer.printFilename() 		== "Error")
+			assert(printer.printFilename() 		== "")
 			assert(printer.printFileSize() 		== "0        B")
 		}
 	}

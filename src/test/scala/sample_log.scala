@@ -14,6 +14,7 @@ object ApacheTopSampleLog
 		""".split("\n").filter(_ != "")
 
 	val filename = "apache.log"
+	val filenameColor = f"${Console.YELLOW}$filename${Console.RESET}"
 	val parser = new ApacheTopParser
 	val logs = (for (line <- Source.fromFile(filename).getLines if line.length != 0)
 				yield(parser.parseLog(line))).toList
